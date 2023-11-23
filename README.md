@@ -6,6 +6,7 @@ A repository defined in bash variable neovim_apps is cloned into $HOME/.config.
 ## Nvim Operational modes
 nvims installs or removes a Neovim configuration.
 
+
 ### Install a Neovim configuration.
 ```
 nvim
@@ -47,4 +48,4 @@ readonly neovim_apps=(
   "zero      | Traap/lazy.zero         | default"
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
-``
+```
