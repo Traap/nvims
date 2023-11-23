@@ -26,7 +26,7 @@ readonly neovim_apps=(
 )
 
 # File name that is overwritten with nvim appname aliases.
-readonly nvimcfg="$HOME"/nvims
+readonly nvimcfg="$HOME"/.config/nvims
 readonly nvimAppNameFile=$nvimcfg/nvim_appnames
 
 # nvapp names extracted from neovim_apps array.
