@@ -1,11 +1,8 @@
 ## nvims
 Safely experiment with multiple Neovim configurations.
 
-A repository defined in bash variable neovim_apps is cloned into $HOME/.config.
-
 ## Nvim Operational modes
 nvims installs or removes a Neovim configuration.
-
 
 ### Install a Neovim configuration.
 ```
@@ -18,15 +15,12 @@ nvim -d
 ```
 
 ### Keybindings
-
 | Keybind | Action
 | ---     | ---
 | ctrl-c  | Cancel.
 | ctrl-p  | Previous selection
 | ctrl-n  | Next selection
 | enter   | Selecte highlighted item
-
-
 
 ## Neovim configurations supported as of 2023-11-13
 ```bash

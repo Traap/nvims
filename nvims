@@ -21,11 +21,13 @@ readonly neovim_apps=(
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
+  "zero      | Traap/lazy.zero         | "
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
 
 # File name that is overwritten with nvim appname aliases.
-readonly nvimAppNameFile="$BASHHOME"/nvim_appnames
+readonly nvimcfg="$HOME"/nvims
+readonly nvimAppNameFile=$nvimcfg/nvim_appnames
 
 # nvapp names extracted from neovim_apps array.
 nvapps=()
@@ -198,6 +200,8 @@ toWorkingDirectory() {
 # {{{ Write neovim aliases to a file that can be sourced.
 
 writeAliasesFile() {
+  echo "Creating $nvimscfg directory."
+  mkdir -p $nvimcfg
   echo "#!/bin/bash" >"$nvimAppNameFile"
   echo "# NVIM_APPNAME aliases" >>"$nvimAppNameFile"
   for nvapp in "${nvapps[@]}"; do
