@@ -19,12 +19,14 @@ nvim -d
 
 ### Keybindings
 
-| Keybind | Action                   |
-| :----   | : ---                    |
-| ctrl-c  | Cancel.                  |
-| ctrl-p  | Previous selection       |
-| ctrl-n  | Next selection           |
-| enter   | Selecte highlighted item |
+| Keybind | Action
+| ---     | ---
+| ctrl-c  | Cancel.
+| ctrl-p  | Previous selection
+| ctrl-n  | Next selection
+| enter   | Selecte highlighted item
+
+
 
 ## Neovim configurations supported as of 2023-11-13
 ```bash
