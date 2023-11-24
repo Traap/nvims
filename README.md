@@ -6,8 +6,7 @@ nvims installs or removes a Neovim configuration.
 
 ### Install nvims
 ```bash
-$ sudo sh -c \
-      'curl -fLo "/usr/local/bin"/nvims \
+sudo sh -c curl -fLo "/usr/local/bin"/nvims \
        https://raw.githubusercontent.com/traap/nvims/master/nvims' \
     && sudo chmod +x /usr/local/bin/nvims
 ```
