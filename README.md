@@ -1,5 +1,7 @@
-## nvims
+# nvims
 Safely experiment with multiple Neovim configurations.
+
+![Nvims screenshot](https://github.com/Traap/nvims/blob/master/nvim.png)
 
 ## Nvim Operational modes
 nvims installs or removes a Neovim configuration.
