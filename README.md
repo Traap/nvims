@@ -29,7 +29,7 @@ nvim -d
 | ctrl-n  | Next selection
 | enter   | Selecte highlighted item
 
-## Neovim configurations supported as of 2023-11-13
+## Neovim configurations supported.
 ```bash
 # alias      | Github repository       | default or branch name
 readonly neovim_apps=(
@@ -52,3 +52,4 @@ readonly neovim_apps=(
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
 ```
+Note: see nvims file for latest configuration packages supported.
