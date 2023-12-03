@@ -36,7 +36,7 @@ nvims -d
 
 ## Neovim configurations supporte.
 ```bash
-# alias      | Github repository       | efault or branch name
+# alias      | Github repository       | default or branch name
 readonly neovim_distros=(
   "astro     | AstroNvim/AstroNvim     | default"
   "asyncedd  | asyncedd/dots.nvim      | default"
