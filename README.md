@@ -34,7 +34,7 @@ nvims -d
 | ctrl-n  | Next selection
 | enter   | Selecte highlighted item
 
-## Neovim configurations supporte.
+## Neovim configurations supported.
 ```bash
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
