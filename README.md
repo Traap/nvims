@@ -11,6 +11,10 @@ nvims installs or removes a Neovim configuration.
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Traap/nvims/master/install.sh)"
 ```
+### Uninstall nvims
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Traap/nvims/master/uninstall.sh)"
+```
 
 ### Install a Neovim configuration.
 ```
