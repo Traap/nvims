@@ -18,12 +18,12 @@ nvims installs or removes a Neovim configuration.
 
 ### Install a Neovim configuration.
 ```
-nvim
+nvims
 ```
 
 ### Remove a Neovim configuration.
 ```
-nvim -d
+nvims -d
 ```
 
 ### Keybindings
