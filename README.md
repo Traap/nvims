@@ -7,10 +7,9 @@ Safely experiment with multiple Neovim configurations.
 nvims installs or removes a Neovim configuration.
 
 ### Install nvims
+
 ```bash
-sudo sh -c 'curl -fLo "/usr/local/bin"/nvims \
-       https://raw.githubusercontent.com/traap/nvims/master/nvims' \
-    && sudo chmod +x /usr/local/bin/nvims
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Traap/nvims/master/install.sh)"
 ```
 
 ### Install a Neovim configuration.
@@ -31,10 +30,10 @@ nvim -d
 | ctrl-n  | Next selection
 | enter   | Selecte highlighted item
 
-## Neovim configurations supported.
+## Neovim configurations supporte.
 ```bash
-# alias      | Github repository       | default or branch name
-readonly neovim_apps=(
+# alias      | Github repository       | efault or branch name
+readonly neovim_distros=(
   "astro     | AstroNvim/AstroNvim     | default"
   "asyncedd  | asyncedd/dots.nvim      | default"
   "barebones | Traap/barebones         | default"
@@ -50,8 +49,15 @@ readonly neovim_apps=(
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
-  "zero      | Traap/lazy.zero         | default"
+  "zero      | Traap/lazy.zero         | "
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
 ```
 Note: see nvims file for latest configuration packages supported.
+
+## Suggested bash login change
+```bash
+if [[   -f "$HOME/.config/nvims/nvim_appnames" ]]; then
+	source "$HOME/.config/nvims/nvim_appnames"
+fi
+```

@@ -1,40 +1,23 @@
 #!/bin/bash
-# {{{ Define Neovim applications you want to experiment with.
-
-# The repository clonded must bootstrap itself.  In otherwords, clone and nvim
-# is all tha tis needed.
-#
-# alias      | Github repository       | default or branch name
-readonly neovim_apps=(
-  "astro     | AstroNvim/AstroNvim     | default"
-  "asyncedd  | asyncedd/dots.nvim      | default"
-  "barebones | Traap/barebones         | default"
-  "baretmux  | Traap/barebones         | tmux"
-  "default   | none                    | none"
-  "exos      | exosyphon/nvim          | none"
-  "kickstart | nvim-lua/kickstart.nvim | default"
-  "nvchad    | NvChad/NvChad           | default"
-  "nvconf    | TechnicalDC/NvConf      | default"
-  "prime     | Traap/init.lua          | default"
-  "prune     | Traap/nvim              | prune"
-  "starter   | LazyVim/starter         | default"
-  "traap     | Traap/nvim              | default"
-  "vapour    | Traap/VapourNvim        | default"
-  "void      | nvoid-lua/nvoid         | default"
-  "zero      | Traap/lazy.zero         | "
-  "zulu      | Traap/nvim              | v0.6.8-packer"
-)
+# {{{ Define file locations and internal arrays.
 
 # File name that is overwritten with nvim appname aliases.
 readonly nvimcfg="$HOME"/.config/nvims
 readonly nvimAppNameFile=$nvimcfg/nvim_appnames
+readonly  neovimDistros=$nvimcfg/neovim_distros
 
-# nvapp names extracted from neovim_apps array.
+# nvapp names extracted from neovim_distros array.
 nvapps=()
 
-# Working directory
-dir=$(pwd)
+# -------------------------------------------------------------------------- }}}
+# {{{ Source configuration files.
+sourceFiles() {
 
+[[ ! -f $neovimDistros ]] && echo "Missing $neovimDistros" && exit
+
+source "$neovimDistros"
+
+}
 # -------------------------------------------------------------------------- }}}
 # {{{ Determine if a pull is needed.
 
@@ -71,7 +54,7 @@ removeSpaces() {
 # {{{ Extract fields from neovim_app array.
 
 buildNeovimAppArray() {
-  for fields in "${neovim_apps[@]}"; do
+  for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias _url _branch <<<"$fields"
     alias="$(removeSpaces "$alias")"
     nvapps+=("$alias")
@@ -82,7 +65,7 @@ buildNeovimAppArray() {
 # {{{ Clone or Pull selected nvapp
 
 cloneOrPullNvApp() {
-  for fields in "${neovim_apps[@]}"; do
+  for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
     alias="$(removeSpaces "$alias")"
@@ -141,7 +124,7 @@ removeDirIfPresent() {
 # {{{ Delete NvimApp from $HOME/.config directory
 
 deleteNvimApp() {
-  for fields in "${neovim_apps[@]}"; do
+  for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
     alias="$(removeSpaces "$alias")"
@@ -256,6 +239,12 @@ done
 # {{{ Main logic
 
 main() {
+  # Save current working directory
+  dir=$(pwd)
+
+  # Source configuration files
+  sourceFiles
+
   buildNeovimAppArray
   writeAliasesFile
   choice="$(selectNeovimApp)"

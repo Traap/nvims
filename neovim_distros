@@ -1,0 +1,26 @@
+#!/bin/bash
+# Define Neovim applications you want to experiment with.
+
+# The repository cloned must bootstrap itself.  In otherwords, clone and nvim
+# is all tha tis needed.
+#
+# alias      | Github repository       | default or branch name
+readonly neovim_distros=(
+  "astro     | AstroNvim/AstroNvim     | default"
+  "asyncedd  | asyncedd/dots.nvim      | default"
+  "barebones | Traap/barebones         | default"
+  "baretmux  | Traap/barebones         | tmux"
+  "default   | none                    | none"
+  "exos      | exosyphon/nvim          | none"
+  "kickstart | nvim-lua/kickstart.nvim | default"
+  "nvchad    | NvChad/NvChad           | default"
+  "nvconf    | TechnicalDC/NvConf      | default"
+  "prime     | Traap/init.lua          | default"
+  "prune     | Traap/nvim              | prune"
+  "starter   | LazyVim/starter         | default"
+  "traap     | Traap/nvim              | default"
+  "vapour    | Traap/VapourNvim        | default"
+  "void      | nvoid-lua/nvoid         | default"
+  "zero      | Traap/lazy.zero         | "
+  "zulu      | Traap/nvim              | v0.6.8-packer"
+)
