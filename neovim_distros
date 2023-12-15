@@ -21,6 +21,7 @@ readonly neovim_distros=(
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
-  "zero      | Traap/lazy.zero         | "
+  "xray      | Traap/nvim              | v0.9.5-lazyvim"
+  "zero      | Traap/lazy.zero         | default"
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
