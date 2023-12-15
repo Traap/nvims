@@ -16,7 +16,6 @@ readonly neovim_distros=(
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
   "prime     | Traap/init.lua          | default"
-  "prune     | Traap/nvim              | prune"
   "starter   | LazyVim/starter         | default"
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
