@@ -13,6 +13,7 @@ readonly neovim_distros=(
   "default   | none                    | none"
   "exos      | exosyphon/nvim          | none"
   "kickstart | nvim-lua/kickstart.nvim | default"
+  "lervag    | lervag/dotnvim          | default"
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
   "prime     | Traap/init.lua          | default"
