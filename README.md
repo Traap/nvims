@@ -45,19 +45,22 @@ readonly neovim_distros=(
   "default   | none                    | none"
   "exos      | exosyphon/nvim          | none"
   "kickstart | nvim-lua/kickstart.nvim | default"
+  "lervag    | lervag/dotnvim          | default"
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
   "prime     | Traap/init.lua          | default"
-  "prune     | Traap/nvim              | prune"
   "starter   | LazyVim/starter         | default"
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
-  "zero      | Traap/lazy.zero         | "
+  "xray      | Traap/nvim              | v0.9.5-lazyvim"
+  "zero      | Traap/lazy.zero         | default"
   "zulu      | Traap/nvim              | v0.6.8-packer"
 )
 ```
-Note: see nvims file for latest configuration packages supported.
+Note: see
+[neovim_distros](https://github.com/Traap/nvims/blob/master/neovim_distros)
+file for latest configuration packages supported.
 
 ## Suggested bash login change
 ```bash
@@ -65,3 +68,10 @@ if [[   -f "$HOME/.config/nvims/nvim_appnames" ]]; then
 	source "$HOME/.config/nvims/nvim_appnames"
 fi
 ```
+
+## So, you want to add your Neovim configuration so others can use it?
+1. Make a pull-request that updates neovim_distro with your GitHub URL and Branch.
+2. Your Neovim configuration *MUST* bootstrap itself.
+3. I'll test it on either Arch or Ubuntu.
+4. With 1, 2, and 3 passing. I'll merge your pull-request.
+
