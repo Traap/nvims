@@ -25,4 +25,5 @@ readonly neovim_distros=(
   "zero      | Traap/lazy.zero         | default"
   "zulu      | Traap/nvim              | v0.6.8-packer"
   "OVIwrite  | MiragianCycle/OVIWrite  | default"
+  "pwnvim    | pwnwriter/pwnvim        | default"
 )
