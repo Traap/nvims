@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # {{{ Define file locations and internal arrays.
 
 # File name that is overwritten with nvim appname aliases.
