@@ -6,6 +6,8 @@
 #
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
+  "LazyVim   | LazyVim/starter         | default"
+  "OVIwrite  | MiragianCycle/OVIWrite  | default"
   "astro     | AstroNvim/AstroNvim     | default"
   "asyncedd  | asyncedd/dots.nvim      | default"
   "barebones | Traap/barebones         | default"
@@ -17,13 +19,11 @@ readonly neovim_distros=(
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
   "prime     | Traap/init.lua          | default"
-  "starter   | LazyVim/starter         | default"
+  "pwnvim    | pwnwriter/pwnvim        | default"
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
   "xray      | Traap/nvim              | v0.9.5-lazyvim"
   "zero      | Traap/lazy.zero         | default"
   "zulu      | Traap/nvim              | v0.6.8-packer"
-  "OVIwrite  | MiragianCycle/OVIWrite  | default"
-  "pwnvim    | pwnwriter/pwnvim        | default"
 )
