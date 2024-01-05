@@ -6,6 +6,9 @@ Safely experiment with multiple Neovim configurations.
 ## Nvim Operational modes
 nvims installs or removes a Neovim configuration.
 
+### Requirements 
+- [fzf](https://github.com/junegunn/fzf)
+
 ### Install nvims
 
 ```bash
