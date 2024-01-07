@@ -41,10 +41,13 @@ nvims -d
 ```bash
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
+  "LazyVim   | LazyVim/starter         | default"
+  "OVIwrite  | MiragianCycle/OVIWrite  | default"
   "astro     | AstroNvim/AstroNvim     | default"
   "asyncedd  | asyncedd/dots.nvim      | default"
   "barebones | Traap/barebones         | default"
   "baretmux  | Traap/barebones         | tmux"
+  "CyberNvim | pgosar/CyberNvim        | default"
   "default   | none                    | none"
   "exos      | exosyphon/nvim          | none"
   "kickstart | nvim-lua/kickstart.nvim | default"
@@ -52,7 +55,7 @@ readonly neovim_distros=(
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
   "prime     | Traap/init.lua          | default"
-  "starter   | LazyVim/starter         | default"
+  "pwnvim    | pwnwriter/pwnvim        | default"
   "traap     | Traap/nvim              | default"
   "vapour    | Traap/VapourNvim        | default"
   "void      | nvoid-lua/nvoid         | default"
