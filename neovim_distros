@@ -13,7 +13,7 @@ readonly neovim_distros=(
   "asyncedd  | asyncedd/dots.nvim      | default"
   "barebones | Traap/barebones         | default"
   "baretmux  | Traap/barebones         | tmux"
-  "cam       | ChristianChiarulli/nvim | none"
+  "cam       | ChristianChiarulli/nvim | default"
   "default   | none                    | none"
   "exos      | exosyphon/nvim          | none"
   "kickstart | nvim-lua/kickstart.nvim | default"
