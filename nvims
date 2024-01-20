@@ -2,9 +2,9 @@
 # {{{ Define file locations and internal arrays.
 
 # File name that is overwritten with nvim appname aliases.
-readonly nvimcfg="$HOME"/.config/nvims
-readonly nvimAppNameFile=$nvimcfg/nvim_appnames
-readonly  neovimDistros=$nvimcfg/neovim_distros
+readonly nvimscfg="$HOME/.config/nvims"
+readonly nvimAppNameFile=$nvimscfg/nvim_appnames
+readonly  neovimDistros=$nvimscfg/neovim_distros
 
 # nvapp names extracted from neovim_distros array.
 nvapps=()
@@ -64,7 +64,7 @@ buildNeovimAppArray() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Clone or Pull selected nvapp
 
-cloneOrPullNvApp() {
+cloneOrPullNeovimApp() {
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
@@ -72,10 +72,12 @@ cloneOrPullNvApp() {
     if [[ "$1" == "$alias" ]]; then
       url="$(removeSpaces "$url")"
       branch="$(removeSpaces "$branch")"
-      location=$HOME/.config/$alias
+      location=$HOME/.config/nvim-$alias
       if [[ -d "$location" ]]; then
+	      echo "Pulling $alias to $location"
         pullRepository "$alias"
       else
+	      echo "Cloning $alias to $location"
         cloneRepository "$alias" "$url" "$branch"
       fi
       return
@@ -88,7 +90,7 @@ cloneOrPullNvApp() {
 
 pullRepository() {
   alias="$1"
-  location=$HOME/.config/$alias
+  location="$HOME/.config/nvim-$alias"
   runCommandFromDirectory "$location" "git pull"
 }
 
@@ -99,13 +101,13 @@ cloneRepository() {
   alias="$1"
   url="$2"
   branch="$3"
-  location=$HOME/.config/$alias
+  location="$HOME/.config/nvim-$alias"
 
   # Clear clone depth when a branch is needed.
   if [[ $branch == "default" ]]; then
-    git clone --depth 1 https://github.com/"$url" "$location"
+    git clone -q --depth 1 https://github.com/"$url" "$location"
   else
-    git clone https://github.com/"$url" "$location"
+    git clone -q https://github.com/"$url" "$location"
     runCommandFromDirectory "$location" "git checkout $branch"
   fi
 }
@@ -129,11 +131,19 @@ deleteNvimApp() {
 
     alias="$(removeSpaces "$alias")"
     if [[ "$1" == "$alias" ]]; then
-      echo "Deleting $alias if required."
-      removeDirIfPresent "$HOME"/.cache/"$alias"
-      removeDirIfPresent "$HOME"/.config/"$alias"
-      removeDirIfPresent "$HOME"/.local/share/"$alias"
-      removeDirIfPresent "$HOME"/.local/state/"$alias"
+      echo "Deleting nvim-$alias if required."
+
+      # New directory names.
+      removeDirIfPresent "$HOME/.cache/nvim-$alias"
+      removeDirIfPresent "$HOME/.config/nvim-$alias"
+      removeDirIfPresent "$HOME/.local/share/nvim-$alias"
+      removeDirIfPresent "$HOME/.local/state/nvim-$alias"
+
+      # Old directory names.
+      removeDirIfPresent "$HOME/.cache/$alias"
+      removeDirIfPresent "$HOME/.config/$alias"
+      removeDirIfPresent "$HOME/.local/share/$alias"
+      removeDirIfPresent "$HOME/.local/state/$alias"
       return
     fi
   done
@@ -183,13 +193,17 @@ toWorkingDirectory() {
 # {{{ Write neovim aliases to a file that can be sourced.
 
 writeAliasesFile() {
-  echo "Creating $nvimscfg directory."
-  mkdir -p $nvimcfg
+  if [[ ! -d "$nvimscfg" ]]; then
+    echo "Creating $nvimscfg directory."
+    mkdir -p $nvimscfg
+  fi
+
+  echo "Writing $nvimAppNameFile"
   echo "#!/bin/bash" >"$nvimAppNameFile"
   echo "# NVIM_APPNAME aliases" >>"$nvimAppNameFile"
   for nvapp in "${nvapps[@]}"; do
     if [[ "default" != "$nvapp" ]]; then
-      echo alias nvim-"${nvapp,,}"=\"NVIM_APPNAME="$nvapp" nvim\" >>"$nvimAppNameFile"
+      echo alias nvim-"${nvapp,,}"=\"NVIM_APPNAME="nvim-$nvapp" nvim\" >>"$nvimAppNameFile"
     fi
   done
 }
@@ -246,7 +260,6 @@ main() {
   sourceFiles
 
   buildNeovimAppArray
-  writeAliasesFile
   choice="$(selectNeovimApp)"
 
   if [[ "$choice" == "Nothing selected" ]]; then
@@ -256,8 +269,9 @@ main() {
   if [[ $deleteNvimAppFlag == true ]]; then
     deleteNvimApp "$choice"
   else
-    cloneOrPullNvApp "$choice"
-    NVIM_APPNAME="$choice" nvim "$@"
+    writeAliasesFile
+    cloneOrPullNeovimApp "$choice"
+    NVIM_APPNAME="nvim-$choice" nvim "$@"
   fi
 }
 
