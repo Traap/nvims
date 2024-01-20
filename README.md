@@ -6,7 +6,7 @@ Safely experiment with multiple Neovim configurations.
 ## Nvim Operational modes
 nvims installs or removes a Neovim configuration.
 
-### Requirements 
+### Requirements
 - [fzf](https://github.com/junegunn/fzf)
 
 ### Install nvims
@@ -41,16 +41,18 @@ nvims -d
 ```bash
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
+  "CyberNvim | pgosar/CyberNvim        | default"
   "LazyVim   | LazyVim/starter         | default"
   "OVIwrite  | MiragianCycle/OVIWrite  | default"
   "astro     | AstroNvim/AstroNvim     | default"
   "asyncedd  | asyncedd/dots.nvim      | default"
   "barebones | Traap/barebones         | default"
   "baretmux  | Traap/barebones         | tmux"
-  "CyberNvim | pgosar/CyberNvim        | default"
+  "cam       | ChristianChiarulli/nvim | none"
   "default   | none                    | none"
   "exos      | exosyphon/nvim          | none"
   "kickstart | nvim-lua/kickstart.nvim | default"
+  "launch    | LunarVim/Launch.nvim    | default"
   "lervag    | lervag/dotnvim          | default"
   "nvchad    | NvChad/NvChad           | default"
   "nvconf    | TechnicalDC/NvConf      | default"
