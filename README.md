@@ -19,6 +19,15 @@ nvims installs or removes a Neovim configuration.
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Traap/nvims/master/uninstall.sh)"
 ```
 
+### OSX additional instructions
+See issue #8.
+
+````
+brew install bash
+echo /usr/local/bin/bash | sudo tee -a /etc/shells
+sed -i '1 s/^.*$/\#\!\/usr\/local\/bin\/env bash/' /usr/local/bin/nvims
+```
+
 ### Install a Neovim configuration.
 ```
 nvims
