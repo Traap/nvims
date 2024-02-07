@@ -20,9 +20,9 @@ nvims installs or removes a Neovim configuration.
 ```
 
 ### OSX additional instructions
-See issue #8.
+See issue ![#8](https://github.com/Traap/nvims/issues/8) for Bash and OSX discussion.
 
-````
+```
 brew install bash
 echo /usr/local/bin/bash | sudo tee -a /etc/shells
 sed -i '1 s/^.*$/\#\!\/usr\/local\/bin\/env bash/' /usr/local/bin/nvims
