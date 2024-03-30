@@ -25,6 +25,7 @@ readonly neovim_distros=(
   "prime      | Traap/init.lua          | default"
   "pwnvim     | pwnwriter/pwnvim        | default"
   "traap      | Traap/nvim              | default"
+  "starter    | lazyvim/starter         | default"
   "vapour     | Traap/VapourNvim        | default"
   "void       | nvoid-lua/nvoid         | default"
   "whiskey    | Traap/nvim              | 706377a"
