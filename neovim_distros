@@ -20,7 +20,7 @@ readonly neovim_distros=(
   "LazyVim    | LazyVim/starter         | default"
   "lervag     | lervag/dotnvim          | default"
   "NormalNvim | NormalNvim/NormalNvim   | default"
-  "nvchad     | NvChad/NvChad           | default"
+  "nvchad     | NvChad/starter          | default"
   "nvconf     | TechnicalDC/NvConf      | default"
   "OVIwrite   | MiragianCycle/OVIWrite  | default"
   "prime      | Traap/init.lua          | default"
