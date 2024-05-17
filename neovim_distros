@@ -9,6 +9,7 @@ readonly neovim_distros=(
   "astro      | AstroNvim/AstroNvim     | default"
   "asyncedd   | asyncedd/dots.nvim      | default"
   "barebones  | Traap/barebones         | default"
+  "barelazy   | Traap/barebones         | lazy"
   "baretmux   | Traap/barebones         | tmux"
   "cam        | ChristianChiarulli/nvim | default"
   "CyberNvim  | pgosar/CyberNvim        | default"
