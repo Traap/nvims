@@ -93,3 +93,10 @@ fi
 3. I'll test it on either Arch or Ubuntu.
 4. With 1, 2, and 3 passing. I'll merge your pull-request.
 
+## Update notification
+1. nvims appends to ```~/.config/nvims/nvim_appnames```
+2. nvims does not remove entries from ```~/.config/nvims/nvim_appnames``` when
+   ```nvims -d``` option is used.
+3. A future update will reconcile ```~/.config/nvims/nvim_appnames``` with
+   ```neovim_distros``` actually installed.
+

@@ -65,11 +65,12 @@ buildNeovimAppArray() {
 # {{{ Clone or Pull selected nvapp
 
 cloneOrPullNeovimApp() {
+  choice="$1"
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
     alias="$(removeSpaces "$alias")"
-    if [[ "$1" == "$alias" ]]; then
+    if [[ "$choice" == "$alias" ]]; then
       url="$(removeSpaces "$url")"
       branch="$(removeSpaces "$branch")"
       location=$HOME/.config/nvim-$alias
@@ -193,19 +194,19 @@ toWorkingDirectory() {
 # {{{ Write neovim aliases to a file that can be sourced.
 
 writeAliasesFile() {
+  choice="$1"
   if [[ ! -d "$nvimscfg" ]]; then
     echo "Creating $nvimscfg directory."
     mkdir -p $nvimscfg
   fi
 
-  echo "Writing $nvimAppNameFile"
-  echo "#!/bin/bash" >"$nvimAppNameFile"
-  echo "# NVIM_APPNAME aliases" >>"$nvimAppNameFile"
-  for nvapp in "${nvapps[@]}"; do
-    if [[ "default" != "$nvapp" ]]; then
-      echo alias nvim-"${nvapp,,}"=\"NVIM_APPNAME="nvim-$nvapp" nvim\" >>"$nvimAppNameFile"
-    fi
-  done
+  if [[ ! -f "$nvimAppNameFile" ]]; then
+    echo "Writing $nvimAppNameFile"
+    echo "#!/bin/bash" >"$nvimAppNameFile"
+    echo "# NVIM_APPNAME " >>"$nvimAppNameFile"
+  fi
+
+  echo alias nvim-"$choice"=\"NVIM_APPNAME="nvim-$choice" nvim\" >>"$nvimAppNameFile"
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -262,14 +263,14 @@ main() {
   buildNeovimAppArray
   choice="$(selectNeovimApp)"
 
-  if [[ "$choice" == "Nothing selected" ]]; then
+if [[ "$choice" == "Nothing selected" ]]; then
     echo "Invalid choice. Exiting" && exit
   fi
 
   if [[ $deleteNvimAppFlag == true ]]; then
     deleteNvimApp "$choice"
   else
-    writeAliasesFile
+    writeAliasesFile "$choice"
     cloneOrPullNeovimApp "$choice"
     NVIM_APPNAME="nvim-$choice" nvim "$@"
   fi
