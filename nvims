@@ -4,7 +4,7 @@
 # File name that is overwritten with nvim appname aliases.
 readonly nvimscfg="$HOME/.config/nvims"
 readonly nvimAppNameFile=$nvimscfg/nvim_appnames
-readonly  neovimDistros=$nvimscfg/neovim_distros
+readonly neovimDistros=$nvimscfg/neovim_distros
 
 # nvapp names extracted from neovim_distros array.
 nvapps=()
@@ -133,18 +133,28 @@ deleteNvimApp() {
     alias="$(removeSpaces "$alias")"
     if [[ "$1" == "$alias" ]]; then
       echo "Deleting nvim-$alias if required."
-
-      # New directory names.
-      removeDirIfPresent "$HOME/.cache/nvim-$alias"
       removeDirIfPresent "$HOME/.config/nvim-$alias"
+      removeDirIfPresent "$HOME/.cache/nvim-$alias"
       removeDirIfPresent "$HOME/.local/share/nvim-$alias"
       removeDirIfPresent "$HOME/.local/state/nvim-$alias"
+      return
+    fi
+  done
+}
 
-      # Old directory names.
-      removeDirIfPresent "$HOME/.cache/$alias"
-      removeDirIfPresent "$HOME/.config/$alias"
-      removeDirIfPresent "$HOME/.local/share/$alias"
-      removeDirIfPresent "$HOME/.local/state/$alias"
+# -------------------------------------------------------------------------- }}}
+# {{{ Reset NvimApp from $HOME/.config directory
+
+deleteNvimApp() {
+  for fields in "${neovim_distros[@]}"; do
+    IFS=$'|' read -r alias url branch <<<"$fields"
+
+    alias="$(removeSpaces "$alias")"
+    if [[ "$1" == "$alias" ]]; then
+      echo "Deleting nvim-$alias if required."
+      removeDirIfPresent "$HOME/.cache/nvim-$alias"
+      removeDirIfPresent "$HOME/.local/share/nvim-$alias"
+      removeDirIfPresent "$HOME/.local/state/nvim-$alias"
       return
     fi
   done
@@ -230,14 +240,19 @@ selectNeovimApp() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Get command line arguments.
 #     d : delete nvimapp selected
+#     r : reset nvimapp selected
 #     h || invalid : display usage
 #     Normal nvims operation for anything else
 
 deleteNvimAppFlag=false
+resetNvimAppFlag=false
 while getopts 'dh' option; do
   case "$option" in
     d)
       deleteNvimAppFlag=true
+      ;;
+    r)
+      resetNvimAppFlag=true
       ;;
     h)
       echo "Usage: nvims [] [-d] [-h]"
@@ -269,6 +284,8 @@ if [[ "$choice" == "Nothing selected" ]]; then
 
   if [[ $deleteNvimAppFlag == true ]]; then
     deleteNvimApp "$choice"
+  elif [[ $resetNvimAppFlag == true ]]; then
+    resetNvimApp "$choice"
   else
     writeAliasesFile "$choice"
     cloneOrPullNeovimApp "$choice"
