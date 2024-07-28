@@ -145,7 +145,7 @@ deleteNvimApp() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Reset NvimApp from $HOME/.config directory
 
-deleteNvimApp() {
+resetNvimApp() {
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
