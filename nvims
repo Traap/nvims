@@ -246,7 +246,7 @@ selectNeovimApp() {
 
 deleteNvimAppFlag=false
 resetNvimAppFlag=false
-while getopts 'dh' option; do
+while getopts 'drh' option; do
   case "$option" in
     d)
       deleteNvimAppFlag=true
@@ -255,11 +255,11 @@ while getopts 'dh' option; do
       resetNvimAppFlag=true
       ;;
     h)
-      echo "Usage: nvims [] [-d] [-h]"
+      echo "Usage: nvims [] [-d] [-r] [-h]"
       exit 1
       ;;
     *)
-      printf "Usage: nvims [] [-d] [-h]\n"
+      printf "Usage: nvims [] [-d] [-r] [-h]\n"
       exit 1
       ;;
   esac
