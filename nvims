@@ -86,6 +86,15 @@ cloneOrPullNeovimApp() {
   done
 }
 
+# --------------------------------------------------------------------------}}}
+# {{{ Set default configuration
+
+setDefaultConfig() {
+  choice="$(selectNeovimApp)"
+  echo "$choice" > "$HOME/.config/nvims/default_config"
+  echo "Default configuration set to $choice"
+}
+
 # -------------------------------------------------------------------------- }}}
 # {{{ Pull repository
 
@@ -257,11 +266,11 @@ while getopts 'drh' option; do
       resetNvimAppFlag=true
       ;;
     h)
-      echo "Usage: nvims [] [-d] [-r] [-h]"
+      echo "Usage: nvims [] [-d] [-r] [-h] [set-default]"
       exit 1
       ;;
     *)
-      printf "Usage: nvims [] [-d] [-r] [-h]\n"
+      printf "Usage: nvims [] [-d] [-r] [-h] [set-default]\n"
       exit 1
       ;;
   esac
@@ -277,8 +286,17 @@ main() {
   # Source configuration files
   sourceFiles
 
+if [[ "$1" == "set-default" ]]; then
+  setDefaultConfig
+  exit 0
+fi
+
+if [[ -s "$HOME/.config/nvims/default_config" ]]; then
+  choice=$(cat "$HOME/.config/nvims/default_config")
+else
   buildNeovimAppArray
   choice="$(selectNeovimApp)"
+fi
 
 if [[ "$choice" == "Nothing selected" ]]; then
     echo "Invalid choice. Exiting" && exit
