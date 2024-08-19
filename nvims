@@ -11,13 +11,13 @@ nvapps=()
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Source configuration files.
+
 sourceFiles() {
-
-[[ ! -f $neovimDistros ]] && echo "Missing $neovimDistros" && exit
-
-source "$neovimDistros"
-
+  [[ ! -f $neovimDistros ]] && echo "Missing $neovimDistros" && exit
+  source "$neovimDistros"
+  echo "neovim_distros sourced successfully."
 }
+
 # -------------------------------------------------------------------------- }}}
 # {{{ Determine if a pull is needed.
 
@@ -53,12 +53,14 @@ removeSpaces() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Extract fields from neovim_app array.
 
+# After building the nvapps array
 buildNeovimAppArray() {
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias _url _branch <<<"$fields"
     alias="$(removeSpaces "$alias")"
     nvapps+=("$alias")
   done
+  echo "nvapps array built: ${nvapps[*]}"
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -75,10 +77,10 @@ cloneOrPullNeovimApp() {
       branch="$(removeSpaces "$branch")"
       location=$HOME/.config/nvim-$alias
       if [[ -d "$location" ]]; then
-	      echo "Pulling $alias to $location"
+        echo "Pulling $alias to $location"
         pullRepository "$alias"
       else
-	      echo "Cloning $alias to $location"
+        echo "Cloning $alias to $location"
         cloneRepository "$alias" "$url" "$branch"
       fi
       return
@@ -90,9 +92,22 @@ cloneOrPullNeovimApp() {
 # {{{ Set default configuration
 
 setDefaultConfig() {
+  buildNeovimAppArray
   choice="$(selectNeovimApp)"
-  echo "$choice" > "$HOME/.config/nvims/default_config"
-  echo "Default configuration set to $choice"
+  if [[ $choice == "Nothing Selected" ]]; then
+    choicer="NormalNvim"
+    # echo "Setting default configuration to NormalNvim"
+    echo "$choicer" >"$HOME/.config/nvims/default_config"
+  else
+    # echo "Setting default configuration to $choice"
+    if [[ $choice == "" ]]; then
+      echo "NormalNvim" >"$HOME/.config/nvims/default_config"
+    else
+      echo "$choice" >"$HOME/.config/nvims/default_config"
+    fi
+
+  fi
+
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -102,6 +117,7 @@ pullRepository() {
   alias="$1"
   location="$HOME/.config/nvim-$alias"
   runCommandFromDirectory "$location" "git pull"
+
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -240,11 +256,6 @@ selectNeovimApp() {
         --height=35% --layout=reverse --border --exit-0
   )
 
-  if [[ -z $config ]]; then
-    echo "Nothing selected"
-  elif [[ $config == "default" ]]; then
-    config=""
-  fi
   echo "$config"
 }
 
@@ -259,47 +270,52 @@ deleteNvimAppFlag=false
 resetNvimAppFlag=false
 while getopts 'drh' option; do
   case "$option" in
-    d)
-      deleteNvimAppFlag=true
-      ;;
-    r)
-      resetNvimAppFlag=true
-      ;;
-    h)
-      echo "Usage: nvims [] [-d] [-r] [-h] [set-default]"
-      exit 1
-      ;;
-    *)
-      printf "Usage: nvims [] [-d] [-r] [-h] [set-default]\n"
-      exit 1
-      ;;
+  d)
+    deleteNvimAppFlag=true
+    ;;
+  r)
+    resetNvimAppFlag=true
+    ;;
+  h)
+    echo "Usage: nvims [] [-d] [-r] [-h] [set-default]"
+    exit 1
+    ;;
+  *)
+    printf "Usage: nvims [] [-d] [-r] [-h] [set-default]\n"
+    exit 1
+    ;;
   esac
 done
 
 # -- ----------------------------------------------------------------------- }}}
 # {{{ Main logic
-
 main() {
-  # Save current working directory
-  dir=$(pwd)
-
-  # Source configuration files
+  local dir=$(pwd)
   sourceFiles
 
-if [[ "$1" == "set-default" ]]; then
-  setDefaultConfig
-  exit 0
-fi
+  if [[ "$1" == "set-default" ]]; then
+    setDefaultConfig
+    exit 0
+  fi
 
-if [[ -s "$HOME/.config/nvims/default_config" ]]; then
-  choice=$(cat "$HOME/.config/nvims/default_config")
-else
-  buildNeovimAppArray
-  choice="$(selectNeovimApp)"
-fi
+  local default_config_file="$HOME/.config/nvims/default_config"
+  local choice
+  if [[ -s "$default_config_file" ]]; then
+    local default_config=$(cat "$default_config_file")
+    if [[ -n "$default_config" ]]; then
+      choice="$default_config"
+    else
+      buildNeovimAppArray
+      choice="$(selectNeovimApp)"
+    fi
+  else
+    buildNeovimAppArray
+    choice="$(selectNeovimApp)"
+  fi
 
-if [[ "$choice" == "Nothing selected" ]]; then
-    echo "Invalid choice. Exiting" && exit
+  if [[ "$choice" == "Nothing selected" ]]; then
+    echo "Invalid choice. Exiting"
+    exit 1
   fi
 
   if [[ $deleteNvimAppFlag == true ]]; then
@@ -312,6 +328,5 @@ if [[ "$choice" == "Nothing selected" ]]; then
     NVIM_APPNAME="nvim-$choice" nvim "$@"
   fi
 }
-
 # -------------------------------------------------------------------------- }}}
 main "$@"
