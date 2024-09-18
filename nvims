@@ -95,9 +95,9 @@ setDefaultConfig() {
   buildNeovimAppArray
   choice="$(selectNeovimApp)"
   if [[ $choice == "Nothing Selected" ]]; then
-    choicer="NormalNvim"
+    basicvim="NormalNvim"
     # echo "Setting default configuration to NormalNvim"
-    echo "$choicer" >"$HOME/.config/nvims/default_config"
+    echo "$basicvim" >"$HOME/.config/nvims/default_config"
   else
     # echo "Setting default configuration to $choice"
     if [[ $choice == "" ]]; then
