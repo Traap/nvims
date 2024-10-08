@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 # {{{ Define file locations and internal arrays.
 
-# File name that is overwritten with nvim appname aliases.
+# location nvims reads and writes its configuration files.
 readonly nvimscfg="$HOME/.config/nvims"
-readonly nvimAppNameFile=$nvimscfg/nvim_appnames
+
+# Custom neovim distribution nvims can bootstrap.
 readonly neovimDistros=$nvimscfg/neovim_distros
+
+# nvims writes aliases nvim-{disto} names it has installed.
+# You should source this file from your shell to have immediate access to the
+# aliases nvims creates.
+readonly nvimAppNameFile=$nvimscfg/nvim_appnames
+
+# nvims allows one to configure a default distribution.
+readonly defaultNeovimDistro=$nvimscfg/nvim_default_app
 
 # nvapp names extracted from neovim_distros array.
 nvapps=()
@@ -15,7 +24,6 @@ nvapps=()
 sourceFiles() {
   [[ ! -f $neovimDistros ]] && echo "Missing $neovimDistros" && exit
   source "$neovimDistros"
-  echo "neovim_distros sourced successfully."
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -53,21 +61,19 @@ removeSpaces() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Extract fields from neovim_app array.
 
-# After building the nvapps array
 buildNeovimAppArray() {
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias _url _branch <<<"$fields"
     alias="$(removeSpaces "$alias")"
     nvapps+=("$alias")
   done
-  echo "nvapps array built: ${nvapps[*]}"
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Clone or Pull selected nvapp
 
 cloneOrPullNeovimApp() {
-  choice="$1"
+  local choice="$1"
   for fields in "${neovim_distros[@]}"; do
     IFS=$'|' read -r alias url branch <<<"$fields"
 
@@ -91,23 +97,9 @@ cloneOrPullNeovimApp() {
 # --------------------------------------------------------------------------}}}
 # {{{ Set default configuration
 
-setDefaultConfig() {
-  buildNeovimAppArray
-  choice="$(selectNeovimApp)"
-  if [[ $choice == "Nothing Selected" ]]; then
-    basicvim="NormalNvim"
-    # echo "Setting default configuration to NormalNvim"
-    echo "$basicvim" >"$HOME/.config/nvims/default_config"
-  else
-    # echo "Setting default configuration to $choice"
-    if [[ $choice == "" ]]; then
-      echo "NormalNvim" >"$HOME/.config/nvims/default_config"
-    else
-      echo "$choice" >"$HOME/.config/nvims/default_config"
-    fi
-
-  fi
-
+setDefaultNvimApp() {
+  local choice="$1"
+  echo "$choice" >"$defaultNeovimDistro"
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -163,6 +155,7 @@ deleteNvimApp() {
       removeDirIfPresent "$HOME/.cache/nvim-$alias"
       removeDirIfPresent "$HOME/.local/share/nvim-$alias"
       removeDirIfPresent "$HOME/.local/state/nvim-$alias"
+      deleteAliasIfExists $alias
       return
     fi
   done
@@ -208,7 +201,7 @@ runCommandFromDirectory() {
 # {{{ Avoid unnecessary pull commands.
 
 runCommandCheck() {
-  command="$1"
+  local command="$1"
   run_command=true
 
   if [[ "$command" == "git pull" ]]; then
@@ -231,7 +224,7 @@ toWorkingDirectory() {
 # {{{ Write neovim aliases to a file that can be sourced.
 
 writeAliasesFile() {
-  choice="$1"
+  local choice="$1"
   if [[ ! -d "$nvimscfg" ]]; then
     echo "Creating $nvimscfg directory."
     mkdir -p $nvimscfg
@@ -243,7 +236,34 @@ writeAliasesFile() {
     echo "# NVIM_APPNAME " >>"$nvimAppNameFile"
   fi
 
-  echo alias nvim-"$choice"=\"NVIM_APPNAME="nvim-$choice" nvim\" >>"$nvimAppNameFile"
+  writeAliasIfNotExists $choice
+}
+
+# -------------------------------------------------------------------------- }}}
+# {{{ Write the alias if it doesn't exist
+
+writeAliasIfNotExists() {
+  local choice="$1"
+  local alias_line="alias nvim-$choice=\"NVIM_APPNAME=nvim-$choice nvim\""
+
+  # Check if the line already exists in the file.
+  if ! grep -Fxq "$alias_line" "$nvimAppNameFile"; then
+    echo "$alias_line" >>"$nvimAppNameFile"
+  fi
+}
+
+# -------------------------------------------------------------------------- }}}
+# {{{ Delete the alias if it exist
+
+deleteAliasIfExists() {
+  local choice="$1"
+  local alias_line="alias nvim-$choice=\"NVIM_APPNAME=nvim-$choice nvim\""
+
+  # Check if the line exists in the file
+  if grep -Fxq "$alias_line" "$nvimAppNameFile"; then
+    sed -i "/$alias_line/d" "$nvimAppNameFile"
+    echo "Alias deleted from $nvimAppNameFile"
+  fi
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -252,8 +272,11 @@ writeAliasesFile() {
 selectNeovimApp() {
   config=$(
     printf "%s\n" "${nvapps[@]}" |
-      fzf --prompt=" Neovim Config  " \
-        --height=35% --layout=reverse --border --exit-0
+      fzf --prompt=" Neovim Config 󰐊" \
+          --height=35% \
+          --layout=reverse \
+          --border \
+          --exit-0
   )
 
   echo "$config"
@@ -261,14 +284,20 @@ selectNeovimApp() {
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Get command line arguments.
+#
+#    Note: nvims process only one command line argument.  That was a design
+#    choice.
+
 #     d : delete nvimapp selected
 #     r : reset nvimapp selected
+#     s : set default nvimapp selected
 #     h || invalid : display usage
 #     Normal nvims operation for anything else
 
 deleteNvimAppFlag=false
 resetNvimAppFlag=false
-while getopts 'drh' option; do
+setDefaultFlag=false
+while getopts 'drhs' option; do
   case "$option" in
   d)
     deleteNvimAppFlag=true
@@ -276,12 +305,15 @@ while getopts 'drh' option; do
   r)
     resetNvimAppFlag=true
     ;;
+  s)
+    setDefaultFlag=true
+    ;;
   h)
-    echo "Usage: nvims [] [-d] [-r] [-h] [set-default]"
+    printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
     exit 1
     ;;
   *)
-    printf "Usage: nvims [] [-d] [-r] [-h] [set-default]\n"
+    printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
     exit 1
     ;;
   esac
@@ -290,43 +322,67 @@ done
 # -- ----------------------------------------------------------------------- }}}
 # {{{ Main logic
 main() {
+  # Save current working directory.
   local dir=$(pwd)
+
+  # Source configuration files.
   sourceFiles
 
-  if [[ "$1" == "set-default" ]]; then
-    setDefaultConfig
-    exit 0
+  # Build neovim app array and let the user make a choice.
+  buildNeovimAppArray
+  local choice="$(selectNeovimApp)"
+
+  # The User may exit by pressing Ctrl-C.
+  if [[ -z $choice ]]; then
+    echo "Ctrl-C pressed. Exiting." && exit
   fi
 
-  local default_config_file="$HOME/.config/nvims/default_config"
-  local choice
-  if [[ -s "$default_config_file" ]]; then
-    local default_config=$(cat "$default_config_file")
-    if [[ -n "$default_config" ]]; then
-      choice="$default_config"
-    else
-      buildNeovimAppArray
-      choice="$(selectNeovimApp)"
+  # default is one of the Neovim distribution nvim provides.  Normally, this
+  # means nvim will launch Neovim similar to using "nvim -u NORC".  This changes
+  # when nvim -s is used.  Firstly, $defaultNeovimDistro is written to with your
+  # desired default. Secondly, when you run nvims and select "default", nvims
+  # will figure use your default.
+  if [[ $choice == "default" ]]; then
+    if [[ -s "$defaultNeovimDistro" ]]; then
+      local default=$(cat "$defaultNeovimDistro")
+      if [[ -n "$default" ]]; then
+        choice="$default"
+      fi
     fi
-  else
-    buildNeovimAppArray
-    choice="$(selectNeovimApp)"
   fi
 
-  if [[ "$choice" == "Nothing selected" ]]; then
-    echo "Invalid choice. Exiting"
-    exit 1
-  fi
+  # nvims will not launch Neovim when the delete option has been selected.
+  local writeAlias=true
+  local cloneOrPull=true
+  local runNeovim=true
 
+  # nvim -d used to delete an existing distribution when it exists.
   if [[ $deleteNvimAppFlag == true ]]; then
     deleteNvimApp "$choice"
+    writeAlias=false
+    cloneOrPull=false
+    runNeovim=false
+
+  # nvim -r used to reset an existing distribution when it exists.
   elif [[ $resetNvimAppFlag == true ]]; then
     resetNvimApp "$choice"
-  else
-    writeAliasesFile "$choice"
-    cloneOrPullNeovimApp "$choice"
-    NVIM_APPNAME="nvim-$choice" nvim "$@"
+    writeAlias=false
+    cloneOrPull=false
+
+  # nvim -s used to set the default distribution .
+  elif [[ $setDefaultFlag == true ]]; then
+    setDefaultNvimApp "$choice"
   fi
+
+  # Write the alias file when needed.
+  [[ $writeAlias == true ]]  && writeAliasesFile "$choice"
+
+  # Clone or pull neovim repository when needed.
+  [[ $cloneOrPull == true ]] && cloneOrPullNeovimApp "$choice"
+
+  # Finally, run neovim.
+  [[ $runNeovim == true ]]   && NVIM_APPNAME="nvim-$choice" nvim
 }
+
 # -------------------------------------------------------------------------- }}}
 main "$@"
