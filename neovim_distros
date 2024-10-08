@@ -7,7 +7,7 @@
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
   "default    | none                    | none"
-  "astro      | AstroNvim/AstroNvim     | default"
+  "astro      | AstroNvim/template      | default"
   "asyncedd   | asyncedd/dots.nvim      | default"
   "barebones  | Traap/barebones         | default"
   "barelazy   | Traap/barebones         | lazy"
