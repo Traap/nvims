@@ -29,14 +29,44 @@ sed -i '1 s/^.*$/\#\!\/usr\/local\/bin\/env bash/' /usr/local/bin/nvims
 ```
 
 ### Install a Neovim configuration.
+Your selection is written to `~/.config/nvims/nvim_appnames`.
+
 ```
 nvims
 ```
 
 ### Remove a Neovim configuration.
+Used to an existing distribution when it exists.  The distribution also removed
+from `~/.config/nvims/nvim_appnames`.
 ```
 nvims -d
 ```
+
+### Reset a Neovim configuration.
+Used to reset an existing distribution when it exists.  The distribution is not
+cloned or pulled, but it is bootstrapped when Neovim is started.
+```
+nvims -r
+```
+
+### Set Neovim default configuration.
+ default is one of the Neovim distribution nvim provides.  Normally, this means
+ nvim will launch Neovim similar to using `nvim -u NORC`.  This changes when
+ nvim -s is used.  Firstly, your selection is written to
+ `~/.config/nvims/nvim_default_app` Secondly, when you run nvims and select
+ `default`, nvims will figure use your default.
+
+Your selection is written to `~/.config/nvims/nvim_appnames` and to
+`~/.config/nvims/nvim_default_app`.
+```
+nvims -s
+```
+
+### Nvims usage
+```
+nvims -h
+```
+Usage: nvims [] [-d] [-r] [-s] [-h]
 
 ### Keybindings
 | Keybind | Action
@@ -50,13 +80,13 @@ nvims -d
 ```bash
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
+  "default    | none                    | none"
   "astro      | AstroNvim/AstroNvim     | default"
   "asyncedd   | asyncedd/dots.nvim      | default"
   "barebones  | Traap/barebones         | default"
   "baretmux   | Traap/barebones         | tmux"
   "cam        | ChristianChiarulli/nvim | default"
   "CyberNvim  | pgosar/CyberNvim        | default"
-  "default    | none                    | none"
   "exos       | exosyphon/nvim          | none"
   "kickstart  | nvim-lua/kickstart.nvim | default"
   "launch     | LunarVim/Launch.nvim    | default"
