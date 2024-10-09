@@ -6,6 +6,7 @@
 #
 # alias      | Github repository       | default or branch name
 readonly neovim_distros=(
+  "default    | none                    | none"
   "astro      | AstroNvim/AstroNvim     | default"
   "asyncedd   | asyncedd/dots.nvim      | default"
   "barebones  | Traap/barebones         | default"
@@ -13,7 +14,6 @@ readonly neovim_distros=(
   "baretmux   | Traap/barebones         | tmux"
   "cam        | ChristianChiarulli/nvim | default"
   "CyberNvim  | pgosar/CyberNvim        | default"
-  "default    | none                    | none"
   "exos       | exosyphon/nvim          | none"
   "kickstart  | nvim-lua/kickstart.nvim | default"
   "launch     | LunarVim/Launch.nvim    | default"
