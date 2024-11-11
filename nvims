@@ -310,10 +310,20 @@ while getopts 'drhs' option; do
     ;;
   h)
     printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
+    printf " [ ] - Display nvim selection list.\n"
+    printf " [d] - Delete selected nvimapp installation.\n"
+    printf " [r] - Reset selected nvimapp installation.\n"
+    printf " [s] - Set selected nvimapp as nvims default.\n"
+    printf " [h] - Display this message.\n"
     exit 1
     ;;
   *)
     printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
+    printf " [ ] - Display nvim selection list.\n"
+    printf " [d] - Delete selected nvimapp installation.\n"
+    printf " [r] - Reset selected nvimapp installation.\n"
+    printf " [s] - Set selected nvimapp as nvims default.\n"
+    printf " [h] - Display this message.\n"
     exit 1
     ;;
   esac
