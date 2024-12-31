@@ -91,10 +91,40 @@ Usage: nvims [] [-d] [-r] [-s] [-h]
 
 ## Neovim configurations supported.
 ```bash
+# alias       | sn  | URL                     | branch
+readonly neovim_distros=(
+  "default    |false| none                    | none"
+  "astro      |false| AstroNvim/template      | default"
+  "asyncedd   |false| asyncedd/dots.nvim      | default"
+  "barebones  |true | Traap/barebones         | default"
+  "barelazy   |true | Traap/barebones         | lazy"
+  "baretmux   |true | Traap/barebones         | tmux"
+  "cam        |false| ChristianChiarulli/nvim | default"
+  "CyberNvim  |false| pgosar/CyberNvim        | default"
+  "exos       |false| exosyphon/nvim          | none"
+  "kickstart  |false| nvim-lua/kickstart.nvim | default"
+  "launch     |false| LunarVim/Launch.nvim    | default"
+  "LazyVim    |true | LazyVim/starter         | default"
+  "lervag     |false| lervag/dotnvim          | default"
+  "NormalNvim |false| NormalNvim/NormalNvim   | default"
+  "nvchad     |false| NvChad/starter          | default"
+  "nvconf     |false| TechnicalDC/NvConf      | default"
+  "OVIwrite   |false| MiragianCycle/OVIWrite  | default"
+  "prime      |false| Traap/init.lua          | default"
+  "pwnvim     |false| pwnwriter/pwnvim        | default"
+  "traap      |true | Traap/nvim              | default"
+  "starter    |false| lazyvim/starter         | default"
+  "vapour     |false| Traap/VapourNvim        | default"
+  "void       |false| nvoid-lua/nvoid         | default"
+  "whiskey    |true | Traap/nvim              | 706377a"
+  "xray       |true | Traap/nvim              | v0.9.5-lazyvim"
+  "zero       |true | Traap/lazy.zero         | default"
+  "zulu       |true | Traap/nvim              | v0.6.8-packer"
+)
 ```
 Note: see
 [neovim_distros](https://github.com/Traap/nvims/blob/master/neovim_distros)
-file for latest configuration packages supported.
+file for latest configuration packages supported and column name discussion.
 
 ## Suggested bash login change
 ```bash
