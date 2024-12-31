@@ -2,35 +2,61 @@
 # Define Neovim applications you want to experiment with.
 
 # The repository cloned must bootstrap itself.  In otherwords, clone and nvim
-# is all tha tis needed.
+# is all that is needed.
 #
-# alias      | Github repository       | default or branch name
+# Column definitions:
+# alias:
+#   The Neovim name you desire to install, reset, set as your default, or delete.
+#   Your selection is written to ~/.config/nvims/nvim_appname as:
+#
+#   alias nvim-{alias}="NVIM_APPNAME=nvim-{alias} nvim
+#
+# sn:
+#   An shortened alias is written to ~/.config/nvims/nvim_appname when true.
+#
+#   alias {alias}="NVIM_APPNAME={alias} nvim
+#
+# URL:
+#   The name is appended to github.com.  The fully-qualified URL becomes:
+#
+#   https://github.com/{URL}.git
+#
+# branch
+#   Branch can be any of the following.
+#   1. default whatever your default branch name is.
+#   2. Anythig else is activated with git check out so it can be a
+#      a. branc name
+#      b. git commit
+#      c. tag
+#      d. release
+#
+# alias       | sn  | URL                     | branch
 readonly neovim_distros=(
-  "default    | none                    | none"
-  "astro      | AstroNvim/template      | default"
-  "asyncedd   | asyncedd/dots.nvim      | default"
-  "barebones  | Traap/barebones         | default"
-  "barelazy   | Traap/barebones         | lazy"
-  "baretmux   | Traap/barebones         | tmux"
-  "cam        | ChristianChiarulli/nvim | default"
-  "CyberNvim  | pgosar/CyberNvim        | default"
-  "exos       | exosyphon/nvim          | none"
-  "kickstart  | nvim-lua/kickstart.nvim | default"
-  "launch     | LunarVim/Launch.nvim    | default"
-  "LazyVim    | LazyVim/starter         | default"
-  "lervag     | lervag/dotnvim          | default"
-  "NormalNvim | NormalNvim/NormalNvim   | default"
-  "nvchad     | NvChad/starter          | default"
-  "nvconf     | TechnicalDC/NvConf      | default"
-  "OVIwrite   | MiragianCycle/OVIWrite  | default"
-  "prime      | Traap/init.lua          | default"
-  "pwnvim     | pwnwriter/pwnvim        | default"
-  "traap      | Traap/nvim              | default"
-  "starter    | lazyvim/starter         | default"
-  "vapour     | Traap/VapourNvim        | default"
-  "void       | nvoid-lua/nvoid         | default"
-  "whiskey    | Traap/nvim              | 706377a"
-  "xray       | Traap/nvim              | v0.9.5-lazyvim"
-  "zero       | Traap/lazy.zero         | default"
-  "zulu       | Traap/nvim              | v0.6.8-packer"
+  "default    |false| none                    | none"
+  "astro      |false| AstroNvim/template      | default"
+  "asyncedd   |false| asyncedd/dots.nvim      | default"
+  "barebones  |true | Traap/barebones         | default"
+  "barelazy   |true | Traap/barebones         | lazy"
+  "baretmux   |true | Traap/barebones         | tmux"
+  "cam        |false| ChristianChiarulli/nvim | default"
+  "CyberNvim  |false| pgosar/CyberNvim        | default"
+  "exos       |false| exosyphon/nvim          | none"
+  "kickstart  |false| nvim-lua/kickstart.nvim | default"
+  "launch     |false| LunarVim/Launch.nvim    | default"
+  "LazyVim    |true | LazyVim/starter         | default"
+  "lervag     |false| lervag/dotnvim          | default"
+  "NormalNvim |false| NormalNvim/NormalNvim   | default"
+  "nvchad     |false| NvChad/starter          | default"
+  "nvconf     |false| TechnicalDC/NvConf      | default"
+  "OVIwrite   |false| MiragianCycle/OVIWrite  | default"
+  "prime      |false| Traap/init.lua          | default"
+  "pwnvim     |false| pwnwriter/pwnvim        | default"
+  "traap      |true | Traap/nvim              | default"
+  "starter    |false| lazyvim/starter         | default"
+  "vapour     |false| Traap/VapourNvim        | default"
+  "void       |false| nvoid-lua/nvoid         | default"
+  "whiskey    |true | Traap/nvim              | 706377a"
+  "xray       |true | Traap/nvim              | v0.9.5-lazyvim"
+  "zero       |true | Traap/lazy.zero         | default"
+  "zulu       |true | Traap/nvim              | v0.6.8-packer"
 )

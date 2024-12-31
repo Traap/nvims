@@ -4,7 +4,13 @@ Safely experiment with multiple Neovim configurations.
 ![Nvims screenshot](https://github.com/Traap/nvims/blob/master/nvims.png)
 
 ## Nvim Operational modes
-nvims installs or removes a Neovim configuration.
+nvims deletes, installs, resets or sets a default nvims configuration.
+
+nvims **does not** modify the followin Neovim directories.
+* ~/.config/nvim
+* ~/.cache/nvim
+* ~/.local/share/nvim
+* ~/.local/state/nvim
 
 ### Requirements
 - [fzf](https://github.com/junegunn/fzf)
@@ -50,11 +56,11 @@ nvims -r
 ```
 
 ### Set Neovim default configuration.
- default is one of the Neovim distribution nvim provides.  Normally, this means
- nvim will launch Neovim similar to using `nvim -u NORC`.  This changes when
- nvim -s is used.  Firstly, your selection is written to
- `~/.config/nvims/nvim_default_app` Secondly, when you run nvims and select
- `default`, nvims will figure use your default.
+default is one of the Neovim distribution nvims provides.  Normally, this
+means nvims will launch Neovim similar to using "nvim -u NORC".  This changes
+when nvims -s is used.  Firstly, $defaultNeovimDistro is written to with your
+desired default. Secondly, when you run nvims and select "default", nvims
+will set $choice to $defaultNeovimDistro.
 
 Your selection is written to `~/.config/nvims/nvim_appnames` and to
 `~/.config/nvims/nvim_default_app`.
@@ -66,7 +72,14 @@ nvims -s
 ```
 nvims -h
 ```
+```log
 Usage: nvims [] [-d] [-r] [-s] [-h]
+ [ ] - Display nvim selection list.
+ [d] - Delete selected nvimapp installation.
+ [r] - Reset selected nvimapp installation.
+ [s] - Set selected nvimapp as nvims default.
+ [h] - Display this message.
+```
 
 ### Keybindings
 | Keybind | Action
@@ -78,33 +91,6 @@ Usage: nvims [] [-d] [-r] [-s] [-h]
 
 ## Neovim configurations supported.
 ```bash
-# alias      | Github repository       | default or branch name
-readonly neovim_distros=(
-  "default    | none                    | none"
-  "astro      | AstroNvim/AstroNvim     | default"
-  "asyncedd   | asyncedd/dots.nvim      | default"
-  "barebones  | Traap/barebones         | default"
-  "baretmux   | Traap/barebones         | tmux"
-  "cam        | ChristianChiarulli/nvim | default"
-  "CyberNvim  | pgosar/CyberNvim        | default"
-  "exos       | exosyphon/nvim          | none"
-  "kickstart  | nvim-lua/kickstart.nvim | default"
-  "launch     | LunarVim/Launch.nvim    | default"
-  "LazyVim    | LazyVim/starter         | default"
-  "lervag     | lervag/dotnvim          | default"
-  "NormalNvim | NormalNvim/NormalNvim   | default"
-  "nvchad     | NvChad/NvChad           | default"
-  "nvconf     | TechnicalDC/NvConf      | default"
-  "OVIwrite   | MiragianCycle/OVIWrite  | default"
-  "prime      | Traap/init.lua          | default"
-  "pwnvim     | pwnwriter/pwnvim        | default"
-  "traap      | Traap/nvim              | default"
-  "vapour     | Traap/VapourNvim        | default"
-  "void       | nvoid-lua/nvoid         | default"
-  "xray       | Traap/nvim              | v0.9.5-lazyvim"
-  "zero       | Traap/lazy.zero         | default"
-  "zulu       | Traap/nvim              | v0.6.8-packer"
-)
 ```
 Note: see
 [neovim_distros](https://github.com/Traap/nvims/blob/master/neovim_distros)
@@ -125,8 +111,7 @@ fi
 
 ## Update notification
 1. nvims appends to ```~/.config/nvims/nvim_appnames```
-2. nvims does not remove entries from ```~/.config/nvims/nvim_appnames``` when
+2. nvims remove entries from ```~/.config/nvims/nvim_appnames``` when
    ```nvims -d``` option is used.
-3. A future update will reconcile ```~/.config/nvims/nvim_appnames``` with
-   ```neovim_distros``` actually installed.
-
+3. nvims write ```~/.config/nvims/nvim_default_app``` when ```nvims -s``` option
+   is used.

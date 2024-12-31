@@ -59,74 +59,94 @@ removeSpaces() {
 }
 
 # -------------------------------------------------------------------------- }}}
-# {{{ Extract fields from neovim_app array.
+# {{{ Build neovim_app array.
 
 buildNeovimAppArray() {
+  nvapps=()
   for fields in "${neovim_distros[@]}"; do
-    IFS=$'|' read -r alias _url _branch <<<"$fields"
+    IFS=$'|' read -r alias _sn _url _branch <<<"$fields"
     alias="$(removeSpaces "$alias")"
     nvapps+=("$alias")
   done
 }
 
 # -------------------------------------------------------------------------- }}}
-# {{{ Clone or Pull selected nvapp
+# {{{ Extract fields from neovim_distros based on user choice.
 
-cloneOrPullNeovimApp() {
+extractNeovimAppFields() {
   local choice="$1"
   for fields in "${neovim_distros[@]}"; do
-    IFS=$'|' read -r alias url branch <<<"$fields"
-
+    IFS=$'|' read -r alias sn url branch <<<"$fields"
     alias="$(removeSpaces "$alias")"
+
     if [[ "$choice" == "$alias" ]]; then
+      sn="$(removeSpaces "$sn")"
       url="$(removeSpaces "$url")"
       branch="$(removeSpaces "$branch")"
-      location=$HOME/.config/nvim-$alias
-      if [[ -d "$location" ]]; then
-        echo "Pulling $alias to $location"
-        pullRepository "$alias"
-      else
-        echo "Cloning $alias to $location"
-        cloneRepository "$alias" "$url" "$branch"
-      fi
+
+      # Set global variables
+      selected_alias="$alias"
+      selected_sn="$sn"
+      selected_url="$url"
+      selected_branch="$branch"
+      selected_location=$HOME/.config/nvim-$selected_alias
+      selected_alias_line="alias nvim-$selected_alias=\"NVIM_APPNAME=nvim-$selected_alias nvim\""
+      selected_sn_line="alias $selected_alias=nvim-$selected_alias"
       return
     fi
   done
+
+  # If no match found, reset globals and return error
+  selected_alias=""
+  selected_sn=""
+  selected_url=""
+  selected_branch=""
+  selected_location=""
+  selected_alias_line=""
+  selected_sn_line=""
+  echo "Error: No matching alias found for '$choice'" >&2
+  return 1
+}
+
+# -------------------------------------------------------------------------- }}}
+# {{{ Clone or Pull selected nvapp
+
+cloneOrPullNeovimApp() {
+  if [[ -d "$selected_location" ]]; then
+    echo "Pulling $selected_alias to $selected_location"
+    pullRepository "$selected_alias"
+  else
+    echo "Cloning $selected_alias to $selected_location"
+    cloneRepository "$selected_alias" "$selected_url" "$selected_branch"
+  fi
+  return
 }
 
 # --------------------------------------------------------------------------}}}
 # {{{ Set default configuration
 
 setDefaultNvimApp() {
-  local choice="$1"
-  echo "$choice" >"$defaultNeovimDistro"
+  echo "$selected_alias" >"$defaultNeovimDistro"
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Pull repository
 
 pullRepository() {
-  alias="$1"
-  location="$HOME/.config/nvim-$alias"
-  runCommandFromDirectory "$location" "git pull"
-
+  runCommandFromDirectory "git pull"
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Clone Repository
 
 cloneRepository() {
-  alias="$1"
-  url="$2"
-  branch="$3"
-  location="$HOME/.config/nvim-$alias"
 
   # Clear clone depth when a branch is needed.
-  if [[ $branch == "default" ]]; then
-    git clone -q --depth 1 https://github.com/"$url" "$location"
+  if [[ $selected_branch == "default" ]]; then
+    git clone -q --depth 1 https://github.com/"$selected_url" "$selected_location"
   else
-    git clone -q https://github.com/"$url" "$location"
-    runCommandFromDirectory "$location" "git checkout $branch"
+    git clone -q https://github.com/"$selected_url" "$selected_location"
+    runCommandFromDirectory "git checkout $selected_branch"
   fi
 }
 
@@ -134,9 +154,10 @@ cloneRepository() {
 # {{{ Recursively remove directory if present.
 
 removeDirIfPresent() {
-  if [[ -d "$1" ]]; then
-    echo "Removed $1"
-    rm -rf "$1"
+  local directory=$1
+  if [[ -d "$directory" ]]; then
+    echo "Removed $directory"
+    rm -rf "$directory"
   fi
 }
 
@@ -144,50 +165,33 @@ removeDirIfPresent() {
 # {{{ Delete NvimApp from $HOME/.config directory
 
 deleteNvimApp() {
-  for fields in "${neovim_distros[@]}"; do
-    IFS=$'|' read -r alias url branch <<<"$fields"
+  echo "Deleting nvim-$selected_alias if required."
 
-    alias="$(removeSpaces "$alias")"
-    if [[ "$1" == "$alias" ]]; then
-      echo "Deleting nvim-$alias if required."
-
-      removeDirIfPresent "$HOME/.config/nvim-$alias"
-      removeDirIfPresent "$HOME/.cache/nvim-$alias"
-      removeDirIfPresent "$HOME/.local/share/nvim-$alias"
-      removeDirIfPresent "$HOME/.local/state/nvim-$alias"
-      deleteAliasIfExists $alias
-      return
-    fi
-  done
+  removeDirIfPresent "$HOME/.config/nvim-$selected_alias"
+  removeDirIfPresent "$HOME/.cache/nvim-$selected_alias"
+  removeDirIfPresent "$HOME/.local/share/nvim-$selected_alias"
+  removeDirIfPresent "$HOME/.local/state/nvim-$selected_alias"
+  deleteAliasIfExists $selected_alias
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Reset NvimApp from $HOME/.config directory
 
 resetNvimApp() {
-  for fields in "${neovim_distros[@]}"; do
-    IFS=$'|' read -r alias url branch <<<"$fields"
+  echo "Resetting nvim-$selected_alias if required."
 
-    alias="$(removeSpaces "$alias")"
-    if [[ "$1" == "$alias" ]]; then
-      echo "Resetting nvim-$alias if required."
-
-      removeDirIfPresent "$HOME/.cache/nvim-$alias"
-      removeDirIfPresent "$HOME/.local/share/nvim-$alias"
-      removeDirIfPresent "$HOME/.local/state/nvim-$alias"
-      return
-    fi
-  done
+  removeDirIfPresent "$HOME/.cache/nvim-$selected_alias"
+  removeDirIfPresent "$HOME/.local/share/nvim-$selected_alias"
+  removeDirIfPresent "$HOME/.local/state/nvim-$selected_alias"
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Run a command from another directory.
 
 runCommandFromDirectory() {
-  location="$1"
-  command="$2"
+  command="$1"
 
-  cd "$location" || return
+  cd "$selected_location" || return
 
   if [[ "$(runCommandCheck "$command")" == true ]]; then
     echo "$command"
@@ -224,7 +228,6 @@ toWorkingDirectory() {
 # {{{ Write neovim aliases to a file that can be sourced.
 
 writeAliasesFile() {
-  local choice="$1"
   if [[ ! -d "$nvimscfg" ]]; then
     echo "Creating $nvimscfg directory."
     mkdir -p $nvimscfg
@@ -236,33 +239,52 @@ writeAliasesFile() {
     echo "# NVIM_APPNAME " >>"$nvimAppNameFile"
   fi
 
-  writeAliasIfNotExists $choice
+  writeAliasIfNotExists
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Write the alias if it doesn't exist
 
 writeAliasIfNotExists() {
-  local choice="$1"
-  local alias_line="alias nvim-$choice=\"NVIM_APPNAME=nvim-$choice nvim\""
 
-  # Check if the line already exists in the file.
-  if ! grep -Fxq "$alias_line" "$nvimAppNameFile"; then
-    echo "$alias_line" >>"$nvimAppNameFile"
+  # Check if the alias line already exists in the file.
+  if [[ -z $(grep -Fx "$selected_alias_line" "$nvimAppNameFile") ]]; then
+    echo "$selected_alias_line" >>"$nvimAppNameFile"
+    echo "Wrote '$selected_alias_line' to $nvimAppNameFile"
+  else
+    echo "Alias '$selected_alias_line' already exists in $nvimAppNameFile"
+  fi
+
+  # Check if the short name alias line exists in the file.
+  if [[ $selected_sn == "true" ]]; then
+    if [[ -z $(grep -Fx "$selected_sn_line" "$nvimAppNameFile") ]]; then
+      echo "$selected_sn_line" >>"$nvimAppNameFile"
+      echo "Wrote '$selected_sn_line' to $nvimAppNameFile"
+    else
+      echo "Alias '$selected_sn_line' already exists in $nvimAppNameFile"
+    fi
   fi
 }
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Delete the alias if it exist
-
 deleteAliasIfExists() {
-  local choice="$1"
-  local alias_line="alias nvim-$choice=\"NVIM_APPNAME=nvim-$choice nvim\""
+  # Check if the alias line exists in the file
+  if [[ -n $(grep -Fx "$selected_alias_line" "$nvimAppNameFile") ]]; then
+    sed -i "/$selected_alias_line/d" "$nvimAppNameFile"
+    echo "Deleted '$selected_alias_line' from $nvimAppNameFile"
+  else
+    echo "Did not delete '$selected_alias_line' from $nvimAppNameFile"
+  fi
 
-  # Check if the line exists in the file
-  if grep -Fxq "$alias_line" "$nvimAppNameFile"; then
-    sed -i "/$alias_line/d" "$nvimAppNameFile"
-    echo "Alias deleted from $nvimAppNameFile"
+  # Check if the short name alias line exists in the file.
+  if [[ $selected_sn == "true" ]]; then
+    if [[ -n $(grep -Fx "$selected_sn_line" "$nvimAppNameFile") ]]; then
+      sed -i "/$selected_sn_line/d" "$nvimAppNameFile"
+      echo "Deleted '$selected_sn_line' from $nvimAppNameFile"
+    else
+      echo "Did not delete '$selected_sn_line' from $nvimAppNameFile"
+    fi
   fi
 }
 
@@ -270,16 +292,16 @@ deleteAliasIfExists() {
 # {{{ Select Neovim app to switch to.
 
 selectNeovimApp() {
-  config=$(
-    printf "%s\n" "${nvapps[@]}" |
-      fzf --prompt=" Neovim Config 󰐊" \
-          --height=35% \
-          --layout=reverse \
-          --border \
-          --exit-0
+  local choice=$(
+  printf "%s\n" "${nvapps[@]}" |
+    fzf --prompt=" Neovim Config 󰐊" \
+    --height=35% \
+    --layout=reverse \
+    --border \
+    --exit-0
   )
 
-  echo "$config"
+  echo "$choice"
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -299,33 +321,33 @@ resetNvimAppFlag=false
 setDefaultFlag=false
 while getopts 'drhs' option; do
   case "$option" in
-  d)
-    deleteNvimAppFlag=true
-    ;;
-  r)
-    resetNvimAppFlag=true
-    ;;
-  s)
-    setDefaultFlag=true
-    ;;
-  h)
-    printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
-    printf " [ ] - Display nvim selection list.\n"
-    printf " [d] - Delete selected nvimapp installation.\n"
-    printf " [r] - Reset selected nvimapp installation.\n"
-    printf " [s] - Set selected nvimapp as nvims default.\n"
-    printf " [h] - Display this message.\n"
-    exit 1
-    ;;
-  *)
-    printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
-    printf " [ ] - Display nvim selection list.\n"
-    printf " [d] - Delete selected nvimapp installation.\n"
-    printf " [r] - Reset selected nvimapp installation.\n"
-    printf " [s] - Set selected nvimapp as nvims default.\n"
-    printf " [h] - Display this message.\n"
-    exit 1
-    ;;
+    d)
+      deleteNvimAppFlag=true
+      ;;
+    r)
+      resetNvimAppFlag=true
+      ;;
+    s)
+      setDefaultFlag=true
+      ;;
+    h)
+      printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
+      printf " [ ] - Display nvim selection list.\n"
+      printf " [d] - Delete selected nvimapp installation.\n"
+      printf " [r] - Reset selected nvimapp installation.\n"
+      printf " [s] - Set selected nvimapp as nvims default.\n"
+      printf " [h] - Display this message.\n"
+      exit 1
+      ;;
+    *)
+      printf "Usage: nvims [] [-d] [-r] [-s] [-h]\n"
+      printf " [ ] - Display nvim selection list.\n"
+      printf " [d] - Delete selected nvimapp installation.\n"
+      printf " [r] - Reset selected nvimapp installation.\n"
+      printf " [s] - Set selected nvimapp as nvims default.\n"
+      printf " [h] - Display this message.\n"
+      exit 1
+      ;;
   esac
 done
 
@@ -347,11 +369,11 @@ main() {
     echo "Ctrl-C pressed. Exiting." && exit
   fi
 
-  # default is one of the Neovim distribution nvim provides.  Normally, this
-  # means nvim will launch Neovim similar to using "nvim -u NORC".  This changes
-  # when nvim -s is used.  Firstly, $defaultNeovimDistro is written to with your
+  # default is one of the Neovim distribution nvims provides.  Normally, this
+  # means nvims will launch Neovim similar to using "nvim -u NORC".  This changes
+  # when nvims -s is used.  Firstly, $defaultNeovimDistro is written to with your
   # desired default. Secondly, when you run nvims and select "default", nvims
-  # will figure use your default.
+  # will set $choice to $defaultNeovimDistro.
   if [[ $choice == "default" ]]; then
     if [[ -s "$defaultNeovimDistro" ]]; then
       local default=$(cat "$defaultNeovimDistro")
@@ -360,6 +382,9 @@ main() {
       fi
     fi
   fi
+
+  # Use choice to extract all fields for.
+  extractNeovimAppFields "$choice"
 
   # nvims will not launch Neovim when the delete option has been selected.
   local writeAlias=true
@@ -379,16 +404,16 @@ main() {
     writeAlias=false
     cloneOrPull=false
 
-  # nvim -s used to set the default distribution .
+    # nvim -s used to set the default distribution .
   elif [[ $setDefaultFlag == true ]]; then
     setDefaultNvimApp "$choice"
   fi
 
   # Write the alias file when needed.
-  [[ $writeAlias == true ]]  && writeAliasesFile "$choice"
+  [[ $writeAlias == true ]]  && writeAliasesFile
 
   # Clone or pull neovim repository when needed.
-  [[ $cloneOrPull == true ]] && cloneOrPullNeovimApp "$choice"
+  [[ $cloneOrPull == true ]] && cloneOrPullNeovimApp
 
   # Finally, run neovim.
   [[ $runNeovim == true ]]   && NVIM_APPNAME="nvim-$choice" nvim
