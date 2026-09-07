@@ -22,32 +22,8 @@ nvapps=()
 # {{{ Source configuration files.
 
 sourceFiles() {
-  [[ ! -f $neovimDistros ]] && echo "Missing $neovimDistros" && exit
+  [[ -f $neovimDistros ]] || { echo "Missing $neovimDistros" >&2; return 1; }
   source "$neovimDistros"
-}
-
-# -------------------------------------------------------------------------- }}}
-# {{{ Determine if a pull is needed.
-
-# shellcheck disable=SC2120
-gitcheck() {
-
-  # Git variables used to determine if a pull is needed.
-  git fetch
-  upstream=${1:-'@{u}'}
-  local=$(git rev-parse @)
-  remote=$(git rev-parse "$upstream")
-  base=$(git merge-base @ "$upstream")
-
-  if [[ "$local" == "$remote" ]]; then
-    echo "Up-to-date"
-  elif [[ "$remote" == "$base" ]]; then
-    echo "Need-to-Push"
-  elif [[ "$local" == "$base" ]]; then
-    echo "Need-to-Pull"
-  else
-    echo "Diverged"
-  fi
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -112,6 +88,9 @@ extractNeovimAppFields() {
 # {{{ Clone or Pull selected nvapp
 
 cloneOrPullNeovimApp() {
+  # The plain default has no repository to bootstrap.
+  [[ $selected_alias == "default" && $selected_url == "none" ]] && return 0
+
   if [[ -d "$selected_location" ]]; then
     echo "Pulling $selected_alias to $selected_location"
     pullRepository "$selected_alias"
@@ -133,7 +112,14 @@ setDefaultNvimApp() {
 # {{{ Pull repository
 
 pullRepository() {
-  runCommandFromDirectory "git pull"
+  if [[ $selected_branch != "default" ]]; then
+    runCommandFromDirectory git checkout "$selected_branch" || return
+  fi
+  runCommandFromDirectory git rev-parse --verify HEAD >/dev/null || return
+  # Configurations pinned to a commit or tag have no branch to pull.
+  if runCommandFromDirectory git symbolic-ref -q HEAD >/dev/null; then
+    runCommandFromDirectory git pull --ff-only
+  fi
 }
 
 # -------------------------------------------------------------------------- }}}
@@ -145,8 +131,8 @@ cloneRepository() {
   if [[ $selected_branch == "default" ]]; then
     git clone -q --depth 1 https://github.com/"$selected_url" "$selected_location"
   else
-    git clone -q https://github.com/"$selected_url" "$selected_location"
-    runCommandFromDirectory "git checkout $selected_branch"
+    git clone -q https://github.com/"$selected_url" "$selected_location" || return
+    runCommandFromDirectory git checkout "$selected_branch"
   fi
 }
 
@@ -188,41 +174,10 @@ resetNvimApp() {
 # -------------------------------------------------------------------------- }}}
 # {{{ Run a command from another directory.
 
-runCommandFromDirectory() {
-  command="$1"
-
+runCommandFromDirectory() (
   cd "$selected_location" || return
-
-  if [[ "$(runCommandCheck "$command")" == true ]]; then
-    echo "$command"
-    $command
-  fi
-
-  toWorkingDirectory
-}
-
-# -------------------------------------------------------------------------- }}}
-# {{{ Avoid unnecessary pull commands.
-
-runCommandCheck() {
-  local command="$1"
-  run_command=true
-
-  if [[ "$command" == "git pull" ]]; then
-    if [[ "$(gitcheck)" != "Need-to-Pull" ]]; then
-      run_command=false
-    fi
-  fi
-
-  echo "$run_command"
-}
-
-# -------------------------------------------------------------------------- }}}
-# {{{ Move to working directory.
-
-toWorkingDirectory() {
-  cd "$dir" || (echo "Returning to working directory failed." && exit)
-}
+  "$@"
+)
 
 # -------------------------------------------------------------------------- }}}
 # {{{ Write neovim aliases to a file that can be sourced.
@@ -230,13 +185,13 @@ toWorkingDirectory() {
 writeAliasesFile() {
   if [[ ! -d "$nvimscfg" ]]; then
     echo "Creating $nvimscfg directory."
-    mkdir -p $nvimscfg
+    mkdir -p "$nvimscfg" || return
   fi
 
   if [[ ! -f "$nvimAppNameFile" ]]; then
     echo "Writing $nvimAppNameFile"
-    echo "#!/bin/bash" >"$nvimAppNameFile"
-    echo "# NVIM_APPNAME " >>"$nvimAppNameFile"
+    echo "#!/bin/bash" >"$nvimAppNameFile" || return
+    echo "# NVIM_APPNAME " >>"$nvimAppNameFile" || return
   fi
 
   writeAliasIfNotExists
@@ -249,7 +204,7 @@ writeAliasIfNotExists() {
 
   # Check if the alias line already exists in the file.
   if [[ -z $(grep -Fx "$selected_alias_line" "$nvimAppNameFile") ]]; then
-    echo "$selected_alias_line" >>"$nvimAppNameFile"
+    echo "$selected_alias_line" >>"$nvimAppNameFile" || return
     echo "Wrote '$selected_alias_line' to $nvimAppNameFile"
   else
     echo "Alias '$selected_alias_line' already exists in $nvimAppNameFile"
@@ -258,7 +213,7 @@ writeAliasIfNotExists() {
   # Check if the short name alias line exists in the file.
   if [[ $selected_sn == "true" ]]; then
     if [[ -z $(grep -Fx "$selected_sn_line" "$nvimAppNameFile") ]]; then
-      echo "$selected_sn_line" >>"$nvimAppNameFile"
+      echo "$selected_sn_line" >>"$nvimAppNameFile" || return
       echo "Wrote '$selected_sn_line' to $nvimAppNameFile"
     else
       echo "Alias '$selected_sn_line' already exists in $nvimAppNameFile"
@@ -354,11 +309,8 @@ done
 # -- ----------------------------------------------------------------------- }}}
 # {{{ Main logic
 main() {
-  # Save current working directory.
-  local dir=$(pwd)
-
   # Source configuration files.
-  sourceFiles
+  sourceFiles || return
 
   # Build neovim app array and let the user make a choice.
   buildNeovimAppArray
@@ -384,7 +336,7 @@ main() {
   fi
 
   # Use choice to extract all fields for.
-  extractNeovimAppFields "$choice"
+  extractNeovimAppFields "$choice" || return
 
   # nvims will not launch Neovim when the delete option has been selected.
   local writeAlias=true
@@ -403,20 +355,22 @@ main() {
     resetNvimApp "$choice"
     writeAlias=false
     cloneOrPull=false
-
-    # nvim -s used to set the default distribution .
-  elif [[ $setDefaultFlag == true ]]; then
-    setDefaultNvimApp "$choice"
   fi
 
-  # Write the alias file when needed.
-  [[ $writeAlias == true ]]  && writeAliasesFile
+  # Publish aliases and the default only after repository setup succeeds.
+  if [[ $cloneOrPull == true ]]; then
+    cloneOrPullNeovimApp || return
+  fi
+  if [[ $writeAlias == true ]]; then
+    writeAliasesFile || return
+    if [[ $setDefaultFlag == true ]]; then
+      setDefaultNvimApp || return
+    fi
+  fi
 
-  # Clone or pull neovim repository when needed.
-  [[ $cloneOrPull == true ]] && cloneOrPullNeovimApp
-
-  # Finally, run neovim.
-  [[ $runNeovim == true ]]   && NVIM_APPNAME="nvim-$choice" nvim
+  if [[ $runNeovim == true ]]; then
+    NVIM_APPNAME="nvim-$choice" nvim
+  fi
 }
 
 # -------------------------------------------------------------------------- }}}

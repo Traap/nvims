@@ -1,19 +1,16 @@
 #!/bin/bash
+set -e
 
-# Clone to /tmp/nvims and run from there.
-git clone https://github.com/Traap/nvims /tmp/traap/nvims
-cd /tmp/traap/nvims
+# Use a private checkout and remove only the directory created by this run.
+install_tmp=$(mktemp -d)
+trap 'rm -rf -- "$install_tmp"' EXIT
 
-# Copy files to their production locationg
-sudo cp -v nvims /usr/local/bin/.
-sudo chmod -v +x /usr/local/bin/nvims
+git clone https://github.com/Traap/nvims "$install_tmp/nvims"
+cd "$install_tmp/nvims"
 
-# Create config directory and copy files there.
-mkdir -p "$HOME"/.config/nvims
-cp -v neovim_distros "$HOME"/.config/nvims/.
-
-# Cleanup temporary directory.
-rm -rfv /tmp/traap
+sudo install -m 755 nvims /usr/local/bin/nvims
+mkdir -p "$HOME/.config/nvims"
+cp -v neovim_distros "$HOME/.config/nvims/"
 
 echo "Installation complete."
 echo "Add /usr/local/bin to your PATH if it's not already."
